@@ -17,15 +17,15 @@ export class NetworkTemplateDto {
 
   @IsEnum(FieldEnum)
   @IsOptional()
-  abonentFrom?: FieldEnum;
+  abonentsFrom?: FieldEnum;
 
   @IsEnum(FieldEnum)
   @IsOptional()
-  abonentTo?: FieldEnum;
+  abonentsTo?: FieldEnum;
 
   @IsEnum(FieldEnum)
   @IsOptional()
-  abonentCircular?: FieldEnum;
+  abonentsCircular?: FieldEnum;
 
   @IsEnum(FieldEnum)
   @IsOptional()

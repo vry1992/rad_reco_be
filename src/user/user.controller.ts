@@ -1,8 +1,9 @@
 // src/user/user.controller.ts
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CurrentUser } from './user.decorator';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -12,33 +13,19 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  // Реєстрація користувача
   @Post('register')
   async register(@Body() dto: CreateUserDto) {
-    const existingUser = await this.userService.findByName(dto.name);
-    if (existingUser) {
-      throw new BadRequestException('User already exists');
-    }
-
-    const user = await this.userService.createUser(dto);
-    const token = this.authService.generateToken(user);
-    return { user: { id: user.id, name: user.name }, token };
+    return this.userService.register(dto);
   }
 
-  // Логін користувача
   @Post('login')
   async login(@Body() dto: CreateUserDto) {
-    const user = await this.userService.findByName(dto.name);
-    if (!user) {
-      throw new BadRequestException('Invalid credentials');
-    }
+    return this.userService.login(dto);
+  }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid) {
-      throw new BadRequestException('Invalid credentials');
-    }
-
-    const token = this.authService.generateToken(user);
-    return { user: { id: user.id, name: user.name }, token };
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@CurrentUser() user: { id: string }) {
+    return this.userService.me(user.id);
   }
 }

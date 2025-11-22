@@ -1,5 +1,5 @@
 export enum FieldEnum {
-  REQUIRED = 'required',
-  ON = 'on',
-  OFF = 'off',
+  REQUIRED,
+  ON,
+  OFF,
 }

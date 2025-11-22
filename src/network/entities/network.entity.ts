@@ -1,7 +1,9 @@
+import { Detection } from 'src/detection/entities/detection.entity';
 import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -23,4 +25,7 @@ export class Network {
     cascade: true,
   })
   template: NetworkTemplate;
+
+  @OneToMany(() => Detection, (detection) => detection.network)
+  detections: Detection[];
 }

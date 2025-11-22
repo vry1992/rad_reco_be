@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { CreateNetworkDto } from './dto/create-network.dto';
 import { NetworkTemplateDto } from './dto/network-template.dto';
+import { NetworksListResponseDto } from './dto/networks-list-response.dto';
 import { NetworkTemplate } from './entities/network-template.entity';
 import { Network } from './entities/network.entity';
-import { FieldEnum } from './enums';
 
 @Injectable()
 export class NetworkService {
@@ -19,41 +19,89 @@ export class NetworkService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  // ------------------ NETWORK ------------------
   async createNetwork(userId: string, dto: CreateNetworkDto): Promise<Network> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
-    const network = this.networkRepository.create({ name: dto.name, user });
+    const { name, ...template } = dto;
+
+    const network = this.networkRepository.create({ name, user });
 
     network.template = this.templateRepository.create({
-      timeOfDetection: FieldEnum.REQUIRED,
-      timeFrom: FieldEnum.OFF,
-      timeTo: FieldEnum.OFF,
-      abonentFrom: FieldEnum.ON,
-      abonentTo: FieldEnum.ON,
-      abonentCircular: FieldEnum.OFF,
-      frequency: FieldEnum.REQUIRED,
-      pelengsImg: FieldEnum.OFF,
-      lat: FieldEnum.OFF,
-      lng: FieldEnum.OFF,
-      map: FieldEnum.OFF,
-      additionalInformation: FieldEnum.ON,
-      transmissionType: FieldEnum.ON,
+      timeOfDetection: template.timeOfDetection,
+      timeFrom: template.timeFrom,
+      timeTo: template.timeTo,
+      abonentsFrom: template.abonentsFrom,
+      abonentsTo: template.abonentsTo,
+      abonentsCircular: template.abonentsCircular,
+      frequency: template.frequency,
+      pelengsImg: template.pelengsImg,
+      lat: template.lat,
+      lng: template.lng,
+      map: template.map,
+      additionalInformation: template.additionalInformation,
+      transmissionType: template.transmissionType,
     });
 
     return this.networkRepository.save(network);
   }
 
   findAll(): Promise<Network[]> {
-    return this.networkRepository.find({ relations: ['template', 'user'] });
+    return this.networkRepository.find({
+      relations: ['template', 'detections'],
+    });
   }
 
-  findOne(id: string): Promise<Network | null> {
-    return this.networkRepository.findOne({
-      where: { id },
-      relations: ['template', 'user'],
+  async getMyNetworks(
+    userId: string,
+    filter: string,
+  ): Promise<NetworksListResponseDto> {
+    const networks = await this.networkRepository.find({
+      select: {
+        id: true,
+        name: true,
+      },
+      relations: ['detections', 'user'],
+      where: [
+        {
+          name: ILike(`%${filter}%`),
+        },
+        {
+          detections: {
+            frequency: ILike(`%${filter}%`),
+          },
+        },
+        {
+          detections: {
+            abonents: {
+              ship: {
+                name: ILike(`%${filter}%`),
+              },
+            },
+          },
+        },
+        {
+          detections: {
+            abonents: {
+              unit: {
+                name: ILike(`%${filter}%`),
+              },
+            },
+          },
+        },
+      ],
     });
+
+    return new NetworksListResponseDto(networks, userId);
+  }
+
+  async findOne(id: string): Promise<Network | null> {
+    const network = await this.networkRepository.findOne({
+      where: { id },
+      relations: ['template', 'detections', 'detections.transmissionType'],
+    });
+
+    return network;
   }
 
   // ------------------ NETWORK TEMPLATE ------------------

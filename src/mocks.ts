@@ -1,0 +1,15 @@
+export const transmissionTypes_MOCK = [
+  { id: '1c72c5c1-8f45-4e2b-bad9-8b0b51f356a1', name: 'CIS-36-50' },
+  { id: '9e3cb58a-53ff-45aa-9f63-dbd7d4f0d17a', name: 'CIS-12' },
+  { id: 'b4cb11a7-4df4-4a39-a03e-4ce2369f09d4', name: 'CIS-45' },
+  { id: 'c7cf4f61-9b68-4a4d-8a59-5e3ad734f51f', name: 'CIS-81-50' },
+  { id: '5a9cde2f-8161-4bc3-aaf0-1ffdd944cf78', name: 'OFDM' },
+  { id: 'c4154b07-7f04-4c15-bcfb-dde127583233', name: 'FSK' },
+  { id: '3799c292-f56e-4de7-822c-cc4135892fa7', name: 'PSK' },
+  { id: 'c0336535-8c8a-4a38-8b2c-1182f8a46cbb', name: 'QPSK' },
+  { id: 'f8d71d1e-b3b5-4a2c-a2ff-252df3626b11', name: 'MFSK' },
+  { id: 'ff18db6d-55b2-493f-a8fc-b50c4bdf0f38', name: 'MSK' },
+  { id: '08ce607b-9b62-4e08-9f4b-97a9e0b2b890', name: 'BPSK' },
+  { id: 'fbd7e80c-c61e-41f4-8fa1-09b8d91e4b79', name: 'FSK-2' },
+  { id: '2cc4d7f3-6e4e-4209-b45b-5b7f53de87b8', name: 'FSK-4' },
+];

@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Unit } from './unit/unit.entity';
+import { Unit } from './unit/entities/unit.entity';
 import { UnitService } from './unit/unit.service';
 
 @Controller('units')

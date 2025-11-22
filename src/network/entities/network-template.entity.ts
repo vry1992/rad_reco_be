@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -17,42 +18,55 @@ export class NetworkTemplate {
   @JoinColumn({ name: 'network_id' })
   network: Network;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.REQUIRED })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   timeOfDetection: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   timeFrom: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   timeTo: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
-  abonentFrom: FieldEnum;
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
+  abonentsFrom: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
-  abonentTo: FieldEnum;
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
+  abonentsTo: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.OFF })
-  abonentCircular: FieldEnum;
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
+  abonentsCircular: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   frequency: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   pelengsImg: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   lat: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   lng: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   map: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.OFF })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   additionalInformation: FieldEnum;
 
-  @Column({ type: 'enum', enum: FieldEnum, default: FieldEnum.ON })
+  @Column({ type: 'enum', enum: FieldEnum })
+  @Transform(({ value }) => +value)
   transmissionType: FieldEnum;
 }
