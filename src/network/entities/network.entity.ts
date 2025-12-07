@@ -15,7 +15,7 @@ export class Network {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', nullable: false, collation: 'uk_UA.UTF-8' })
   name: string;
 
   @ManyToOne(() => User, (user) => user.networks, { onDelete: 'CASCADE' })

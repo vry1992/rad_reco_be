@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Detection } from 'src/detection/entities/detection.entity';
+import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { CreateNetworkDto } from './dto/create-network.dto';
 import { NetworkTemplateDto } from './dto/network-template.dto';
@@ -52,45 +53,19 @@ export class NetworkService {
     });
   }
 
-  async getMyNetworks(
-    userId: string,
-    filter: string,
-  ): Promise<NetworksListResponseDto> {
-    const networks = await this.networkRepository.find({
-      select: {
-        id: true,
-        name: true,
-      },
-      relations: ['detections', 'user'],
-      where: [
-        {
-          name: ILike(`%${filter}%`),
-        },
-        {
-          detections: {
-            frequency: ILike(`%${filter}%`),
-          },
-        },
-        {
-          detections: {
-            abonents: {
-              ship: {
-                name: ILike(`%${filter}%`),
-              },
-            },
-          },
-        },
-        {
-          detections: {
-            abonents: {
-              unit: {
-                name: ILike(`%${filter}%`),
-              },
-            },
-          },
-        },
-      ],
-    });
+  async getMyNetworks(userId: string, filter: string): Promise<any> {
+    const networks = await this.networkRepository
+      .createQueryBuilder('n')
+      .leftJoinAndSelect('n.detections', 'd')
+      .leftJoinAndSelect('d.abonents', 'a')
+      .leftJoinAndSelect('a.ship', 'ship')
+      .leftJoinAndSelect('a.unit', 'unit')
+      .leftJoinAndSelect('n.user', 'user')
+      .where('n.name ILIKE :filter', { filter: `%${filter}%` })
+      .orWhere('d.frequency ILIKE :filter', { filter: `%${filter}%` })
+      .orWhere('ship.name ILIKE :filter', { filter: `%${filter}%` })
+      .orWhere('unit.name ILIKE :filter', { filter: `%${filter}%` })
+      .getMany();
 
     return new NetworksListResponseDto(networks, userId);
   }
@@ -102,6 +77,53 @@ export class NetworkService {
     });
 
     return network;
+  }
+
+  // [({
+  //   callsign: 'Кого',
+  //   ship: null,
+  //   unit: '92f28aef-8dd6-4dfd-b724-5e7b61225f37',
+  //   aircraft: null,
+  // },
+  // {
+  //   callsign: 'Кого',
+  //   ship: null,
+  //   unit: 'ec78db7a-30a5-47bc-9aff-33090c5be9ea',
+  //   aircraft: null,
+  // },
+  // {
+  //   callsign: 'Хто',
+  //   ship: '87b200df-8748-4239-aa52-b43fe87d289e',
+  //   unit: null,
+  //   aircraft: null,
+  // },
+  // {
+  //   callsign: 'Хто',
+  //   ship: null,
+  //   unit: '8cc4ab9b-cbbb-4247-b912-0c1a2f28bad9',
+  //   aircraft: null,
+  // },
+  // {
+  //   callsign: 'Хто',
+  //   ship: null,
+  //   unit: '92f28aef-8dd6-4dfd-b724-5e7b61225f37',
+  //   aircraft: null,
+  // },
+  // {
+  //   callsign: null,
+  //   ship: null,
+  //   unit: null,
+  //   aircraft: null,
+  // })];
+
+  getFrequencies(networkId: string): Promise<Pick<Detection, 'frequency'>[]> {
+    return this.networkRepository
+      .createQueryBuilder('net')
+      .leftJoinAndSelect('net.detections', 'd')
+      .where('net.id = :networkId', { networkId })
+      .select('d.frequency', 'frequency')
+      .distinct(true)
+      .getRawMany();
   }
 
   // ------------------ NETWORK TEMPLATE ------------------

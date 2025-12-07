@@ -3,3 +3,9 @@ export enum AbonentDirectionEnum {
   TO,
   CIRCULAR,
 }
+
+export enum ConjunctionTypeEnum {
+  MAIN,
+  OR,
+  AND,
+}

@@ -1,3 +1,4 @@
+import { TransmissionType } from 'src/transmission-type/entities/transmission-type.entity';
 import {
   Column,
   Entity,
@@ -7,7 +8,6 @@ import {
 } from 'typeorm';
 import { Network } from '../../network/entities/network.entity';
 import { Abonent } from './abonent.entity';
-import { TransmissionType } from './transmission-type.entity';
 
 @Entity({ name: 'detection' })
 export class Detection {

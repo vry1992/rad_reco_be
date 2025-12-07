@@ -3,12 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Unit } from 'src/unit/entities/unit.entity';
 import { ShipTypes } from './entities/ship-types.entity';
 import { Ship } from './entities/ship.entity';
+import { ShipTypesService } from './ship-types.service';
 import { ShipController } from './ship.controller';
 import { ShipService } from './ship.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ship, Unit, ShipTypes])],
-  providers: [ShipService],
+  providers: [ShipService, ShipTypesService],
   controllers: [ShipController],
   exports: [ShipService],
 })

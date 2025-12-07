@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import { join } from 'path';
 import { ObjectType } from 'src/common/types';
-import { transmissionTypes_MOCK } from 'src/mocks';
+import { FilesService } from 'src/files/files.service';
 import { Repository } from 'typeorm';
 import { CreateDetectionRawDto } from './dto/create-detection-raw.dto';
 import { GetLastDetectionsDto } from './dto/get-last-detections.dto';
+import { GetScreenDto } from './dto/get-screen.dto';
 import { Abonent } from './entities/abonent.entity';
 import { Detection } from './entities/detection.entity';
-import { TransmissionType } from './entities/transmission-type.entity';
 import { AbonentDirectionEnum } from './types';
 
 @Injectable()
@@ -17,15 +19,9 @@ export class DetectionService {
     private readonly detectionRepo: Repository<Detection>,
     @InjectRepository(Abonent)
     private readonly abonentRepo: Repository<Abonent>,
-    @InjectRepository(TransmissionType)
-    private readonly transmssionTypeRepo: Repository<TransmissionType>,
-  ) {}
 
-  async onModuleInit() {
-    transmissionTypes_MOCK.forEach((tt) => {
-      this.transmssionTypeRepo.save(tt);
-    });
-  }
+    private readonly fileService: FilesService,
+  ) {}
 
   findAll() {
     return this.detectionRepo.find({
@@ -33,35 +29,58 @@ export class DetectionService {
     });
   }
 
-  findAllTransmissionTypes() {
-    return this.transmssionTypeRepo.find();
-  }
-
   async getLastDetections(userId: string, query: GetLastDetectionsDto) {
-    return this.detectionRepo.find({
-      relations: [
-        'network',
-        'abonents',
-        'transmissionType',
-        'abonents.ship',
-        'abonents.unit',
-      ],
-      skip: +query.skip,
-      take: +query.limit,
-      order: {
-        timeOfDetection: 'DESC',
-      },
-      where: {
-        network: {
-          user: {
-            id: userId,
-          },
-        },
-      },
-    });
+    const dbQuery = this.detectionRepo
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.network', 'net')
+      .leftJoinAndSelect('d.abonents', 'a')
+      .leftJoinAndSelect('a.ship', 'ship')
+      .leftJoinAndSelect('ship.type', 'type')
+      .leftJoinAndSelect('d.transmissionType', 'transmissionType')
+      .leftJoinAndSelect('a.unit', 'unit')
+      .leftJoinAndSelect('net.user', 'user')
+      .where('user.id = :userId', { userId });
+
+    if (query.filter) {
+      dbQuery.andWhere(
+        `
+      (
+        net.name ILIKE :filter OR
+        d.frequency ILIKE :filter OR
+
+        EXISTS (
+          SELECT 1
+          FROM abonent a2
+          LEFT JOIN ship s2 ON s2.id = a2.ship_id
+          WHERE a2.detection_id = d.id
+            AND s2.name ILIKE :filter
+        ) OR
+
+        EXISTS (
+          SELECT 1
+          FROM abonent a3
+          LEFT JOIN unit u3 ON u3.id = a3.unit_id
+          WHERE a3.detection_id = d.id
+            AND u3.name ILIKE :filter
+        )
+      )
+    `,
+        { filter: `%${query.filter}%` },
+      );
+    }
+
+    dbQuery.offset(0).take(+query.limit).orderBy('d.timeOfDetection', 'DESC');
+
+    return dbQuery.getMany();
   }
 
-  async create(dto: CreateDetectionRawDto) {
+  async create(
+    dto: CreateDetectionRawDto,
+    files: {
+      abonentFromPelengImage?: Express.Multer.File;
+      abonentToPelengImage?: Express.Multer.File;
+    },
+  ) {
     const shipsFrom = dto.abonentsFrom.filter(
       ({ objectType }) => objectType === ObjectType.SHIP,
     );
@@ -139,7 +158,45 @@ export class DetectionService {
       ...abonentsUnitsTo,
     ];
 
-    await this.detectionRepo.save(detection);
+    const saveResult = await this.detectionRepo.save(detection);
+
+    const fromImage: Express.Multer.File = files.abonentFromPelengImage?.[0];
+    const toImage: Express.Multer.File = files.abonentToPelengImage?.[0];
+    if (fromImage && fromImage?.buffer) {
+      const ext = fromImage.originalname.split('.').at(-1);
+      const fromPath = this.fileService.getFilePath({
+        fileName: `from.${ext}`,
+        networkId: dto.networkId,
+        detectionId: saveResult.id,
+      });
+      await this.fileService.save(fromImage, fromPath);
+    }
+    if (toImage && toImage?.buffer) {
+      const ext = toImage.originalname.split('.').at(-1);
+      const toPath = this.fileService.getFilePath({
+        fileName: `to.${ext}`,
+        networkId: dto.networkId,
+        detectionId: saveResult.id,
+      });
+      await this.fileService.save(fromImage, toPath);
+    }
+  }
+
+  getScreen(
+    fileName: string,
+    { networkId, detectionId }: GetScreenDto,
+  ): string | null {
+    const filePath = join(
+      process.cwd(),
+      'uploads',
+      networkId,
+      detectionId,
+      fileName,
+    );
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+    return filePath;
   }
 
   update(id: string, dto) {
@@ -157,5 +214,38 @@ export class DetectionService {
     });
 
     return oneDetection;
+  }
+
+  async getCallsignsInNetwork(networkId: string): Promise<Abonent[]> {
+    const callsigns: Abonent[] = await this.abonentRepo
+      .createQueryBuilder('abonent')
+      .leftJoin('abonent.detection', 'detection')
+      .where('detection.networkId = :networkId', { networkId })
+      .select(['abonent.callsign'])
+      .orderBy('detection.timeOfDetection', 'DESC')
+      .orderBy({
+        'abonent.callsign': 'DESC',
+        'detection.timeOfDetection': 'DESC',
+      })
+      .distinctOn(['abonent.callsign'])
+      .getMany();
+
+    return callsigns;
+  }
+
+  getCallsignAbonents(networkId: string, callsign: string): Promise<Abonent[]> {
+    return this.abonentRepo
+      .createQueryBuilder('abonent')
+      .leftJoin('abonent.detection', 'detection')
+      .leftJoin('abonent.ship', 'ship')
+      .leftJoin('ship.type', 'type')
+      .leftJoin('abonent.unit', 'unit')
+      .where('abonent.callsign = :callsign', { callsign })
+      .select(['abonent', 'ship', 'unit', 'type'])
+      .andWhere('detection.networkId = :networkId', {
+        networkId,
+      })
+      .distinctOn(['ship', 'unit'])
+      .getMany();
   }
 }

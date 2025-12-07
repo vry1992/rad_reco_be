@@ -1,6 +1,5 @@
-// transmission-type.entity.ts
+import { Detection } from 'src/detection/entities/detection.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Detection } from './detection.entity';
 
 @Entity({ name: 'transmission_type' })
 export class TransmissionType {
@@ -10,7 +9,6 @@ export class TransmissionType {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  // В одного типу трансмісії може бути багато детекшинів
   @OneToMany(() => Detection, (detection) => detection.transmissionType)
   detections: Detection[];
 }

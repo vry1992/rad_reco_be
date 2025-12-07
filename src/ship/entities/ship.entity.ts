@@ -16,7 +16,11 @@ export class Ship {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({
+    type: 'varchar',
+    collation: 'uk_UA.UTF-8',
+    nullable: false,
+  })
   name: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })

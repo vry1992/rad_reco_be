@@ -4,7 +4,6 @@ import { Ship } from 'src/ship/entities/ship.entity';
 import { In, Repository } from 'typeorm';
 import { ChangeNestingDto } from './dto/change-units-nesting.dto';
 import { Unit } from './entities/unit.entity';
-import { buildUnitsNesting } from './utils';
 
 @Injectable()
 export class UnitService {
@@ -41,7 +40,7 @@ export class UnitService {
       ],
     });
 
-    return buildUnitsNesting(units);
+    return units;
   }
 
   async changeNesting({ sourceId, targetId }: ChangeNestingDto) {

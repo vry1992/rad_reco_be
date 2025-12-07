@@ -36,6 +36,12 @@ export class NetworkController {
     return this.networkService.getMyNetworks(id, filter);
   }
 
+  @Get(':networkId/frequencies')
+  @UseGuards(JwtAuthGuard)
+  getFrequencies(@Param('networkId') networkId: string) {
+    return this.networkService.getFrequencies(networkId);
+  }
+
   @Post(':userId')
   @UseGuards(JwtAuthGuard)
   create(@Param('userId') userId: string, @Body() body: CreateNetworkDto) {

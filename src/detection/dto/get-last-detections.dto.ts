@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GetLastDetectionsDto {
   @Transform(({ value }) => +value)
@@ -9,4 +9,8 @@ export class GetLastDetectionsDto {
   @Transform(({ value }) => +value)
   @IsNumber()
   limit: string;
+
+  @IsOptional()
+  @IsString()
+  filter: string;
 }

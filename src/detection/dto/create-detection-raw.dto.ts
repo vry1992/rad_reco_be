@@ -91,6 +91,7 @@ export class CreateDetectionRawDto {
   @IsUUID()
   transmissionType: string;
 
+  @IsOptional()
   @IsString()
   additionalInformation: string;
 }

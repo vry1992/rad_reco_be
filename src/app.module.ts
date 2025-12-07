@@ -11,13 +11,15 @@ import configuration from './config/configuration';
 import { DetectionModule } from './detection/detection.module';
 import { Abonent } from './detection/entities/abonent.entity';
 import { Detection } from './detection/entities/detection.entity';
-import { TransmissionType } from './detection/entities/transmission-type.entity';
+import { FilesModule } from './files/files.module';
 import { NetworkTemplate } from './network/entities/network-template.entity';
 import { Network } from './network/entities/network.entity';
 import { NetworkModule } from './network/network.module';
 import { ShipTypes } from './ship/entities/ship-types.entity';
 import { Ship } from './ship/entities/ship.entity';
 import { ShipModule } from './ship/ship.module';
+import { TransmissionType } from './transmission-type/entities/transmission-type.entity';
+import { TransmissionTypeModule } from './transmission-type/transmission-type.module';
 import { Unit } from './unit/entities/unit.entity';
 import { UnitModule } from './unit/unit.module';
 import { User } from './user/entities/user.entity';
@@ -68,6 +70,8 @@ import { UserModule } from './user/user.module';
     NetworkModule,
     DetectionModule,
     AircraftModule,
+    FilesModule,
+    TransmissionTypeModule,
   ],
   controllers: [AuthController],
 })
