@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AircraftModule } from './aircraft/aircraft.module';
-import { AircraftTypes } from './aircraft/entities/aircraft-types.entity';
 import { Aircraft } from './aircraft/entities/aircraft.entity';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
@@ -48,7 +47,6 @@ import { UserModule } from './user/user.module';
             Abonent,
             TransmissionType,
             Aircraft,
-            AircraftTypes,
           ],
           type: 'postgres',
           host: configService.get('DB_HOST'),

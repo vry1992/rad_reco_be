@@ -11,3 +11,7 @@ export async function validateDto<T>(
   await validateOrReject(dtoObject as object);
   return dtoObject;
 }
+
+export function trigramSplitter(str: string, n: number = 3): string[] {
+  return [];
+}

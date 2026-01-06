@@ -1,5 +1,4 @@
 import { Transform } from 'class-transformer';
-import { Aircraft } from 'src/aircraft/entities/aircraft.entity';
 import { ObjectType } from 'src/common/types';
 import { Abonent } from 'src/detection/entities/abonent.entity';
 import { Ship } from 'src/ship/entities/ship.entity';
@@ -43,8 +42,8 @@ export class Unit {
   @OneToMany(() => Ship, (ship) => ship.unit, { cascade: true })
   ships: Ship[];
 
-  @OneToMany(() => Aircraft, (aircraft) => aircraft.unit, { cascade: true })
-  aircrafts: Aircraft[];
+  // @OneToMany(() => Aircraft, (aircraft) => aircraft.unit, { cascade: true })
+  // aircrafts: Aircraft[];
 
   @OneToMany(() => Abonent, (a) => a.ship)
   abonents: Abonent[];

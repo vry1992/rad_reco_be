@@ -83,7 +83,10 @@ export class ShipService {
   }
 
   findAll(): Promise<Ship[]> {
-    return this.shipRepository.find({ relations: ['unit', 'type'] });
+    return this.shipRepository.find({
+      relations: ['unit', 'type'],
+      withDeleted: true,
+    });
   }
 
   findOne(id: string): Promise<Ship | null> {

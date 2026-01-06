@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ship } from 'src/ship/entities/ship.entity';
-import { In, Repository } from 'typeorm';
+import { In, Repository, TreeRepository } from 'typeorm';
 import { ChangeNestingDto } from './dto/change-units-nesting.dto';
 import { Unit } from './entities/unit.entity';
 
@@ -10,6 +10,8 @@ export class UnitService {
   constructor(
     @InjectRepository(Unit)
     private readonly unitRepository: Repository<Unit>,
+    @InjectRepository(Unit)
+    private readonly unitTreeRepository: TreeRepository<Unit>,
     @InjectRepository(Ship)
     private readonly shipRepository: Repository<Ship>,
   ) {}
@@ -31,13 +33,7 @@ export class UnitService {
 
   async findAll(): Promise<Unit[]> {
     const units = await this.unitRepository.find({
-      relations: [
-        'parent',
-        'ships',
-        'ships.type',
-        'children',
-        'children.ships',
-      ],
+      relations: ['ships', 'ships.type', 'parent'],
     });
 
     return units;

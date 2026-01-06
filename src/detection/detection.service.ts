@@ -162,23 +162,16 @@ export class DetectionService {
 
     const fromImage: Express.Multer.File = files.abonentFromPelengImage?.[0];
     const toImage: Express.Multer.File = files.abonentToPelengImage?.[0];
+    const folders = [dto.networkId, saveResult.id];
     if (fromImage && fromImage?.buffer) {
       const ext = fromImage.originalname.split('.').at(-1);
-      const fromPath = this.fileService.getFilePath({
-        fileName: `from.${ext}`,
-        networkId: dto.networkId,
-        detectionId: saveResult.id,
-      });
+      const fromPath = this.fileService.getFilePath(`from.${ext}`, folders);
       await this.fileService.save(fromImage, fromPath);
     }
     if (toImage && toImage?.buffer) {
       const ext = toImage.originalname.split('.').at(-1);
-      const toPath = this.fileService.getFilePath({
-        fileName: `to.${ext}`,
-        networkId: dto.networkId,
-        detectionId: saveResult.id,
-      });
-      await this.fileService.save(fromImage, toPath);
+      const toPath = this.fileService.getFilePath(`to.${ext}`, folders);
+      await this.fileService.save(toImage, toPath);
     }
   }
 

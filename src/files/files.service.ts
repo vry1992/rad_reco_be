@@ -4,22 +4,13 @@ import { dirname, join } from 'path';
 
 @Injectable()
 export class FilesService {
-  getFilePath({
-    networkId,
-    detectionId,
-    fileName,
-  }: {
-    networkId: string;
-    detectionId: string;
-    fileName: string;
-  }) {
+  getFilePath(fileName: string, folders: string[]) {
     const folderPath = join(
       __dirname,
       '..',
       '..',
       'uploads',
-      networkId,
-      detectionId,
+      ...folders,
       fileName,
     );
     if (!fs.existsSync(folderPath)) {
@@ -34,9 +25,18 @@ export class FilesService {
   }
 
   deleteFile(path: string) {
-    const fullPath = join(__dirname, '..', '..', path);
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    if (fs.existsSync(path)) {
+      const isFile = fs.lstatSync(path).isFile();
+
+      if (isFile) {
+        fs.unlinkSync(path);
+      }
+
+      const isDir = fs.lstatSync(path).isDirectory();
+
+      if (isDir) {
+        fs.rmSync(path, { recursive: true });
+      }
     }
   }
 }

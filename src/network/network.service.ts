@@ -126,14 +126,11 @@ export class NetworkService {
       .getRawMany();
   }
 
-  // ------------------ NETWORK TEMPLATE ------------------
-  async getTemplate(networkId: string): Promise<NetworkTemplate> {
-    const network = await this.networkRepository.findOne({
+  getTemplate(networkId: string): Promise<Network> {
+    return this.networkRepository.findOne({
       where: { id: networkId },
       relations: ['template'],
     });
-    if (!network) throw new NotFoundException('Network not found');
-    return network.template;
   }
 
   async updateTemplate(

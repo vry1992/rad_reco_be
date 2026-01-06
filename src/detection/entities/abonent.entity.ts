@@ -44,6 +44,7 @@ export class Abonent {
   unit: Unit;
 
   @ManyToOne(() => Aircraft, { nullable: true })
+  @JoinColumn({ name: 'aircraft_id' })
   aircraft: Aircraft;
 
   @Column({ type: 'enum', enum: AbonentDirectionEnum })

@@ -1,7 +1,10 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { IsOptional, IsString } from 'class-validator';
-import { CheckTransmissionTypeDto } from './check-transmission-type-name.dto';
+import { CreateTransmissionTypeDto } from './create-transmission-type.dto';
 
-export class CreateTransmissionTypeDto extends CheckTransmissionTypeDto {
+export class EditTransmissionTypeDto extends PartialType(
+  CreateTransmissionTypeDto,
+) {
   @IsString()
   transmissionType: string;
 

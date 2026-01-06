@@ -6,22 +6,16 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ChangeShipsNestingDto } from './dto/change-ships-nesting.dto';
-import { PaginationDto } from './dto/pagination.dto';
 import { Ship } from './entities/ship.entity';
-import { ShipTypesService } from './ship-types.service';
 import { ShipService } from './ship.service';
 
 @Controller('ships')
 export class ShipController {
-  constructor(
-    private readonly shipService: ShipService,
-    private readonly shipTypesService: ShipTypesService,
-  ) {}
+  constructor(private readonly shipService: ShipService) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -33,12 +27,6 @@ export class ShipController {
   @UseGuards(JwtAuthGuard)
   treeSelectOptions(): Promise<Record<string, Ship[]>> {
     return this.shipService.selectTreeSelectOptions();
-  }
-
-  @Get('types')
-  @UseGuards(JwtAuthGuard)
-  shipTypes(@Query() dto: PaginationDto): Promise<any> {
-    return this.shipTypesService.getShipTypes(dto);
   }
 
   @Get(':id')

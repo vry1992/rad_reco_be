@@ -16,4 +16,17 @@ export class ShipTypesService {
       ...dto,
     });
   }
+
+  getOne(id: string) {
+    return this.shipTypesRepository.findOne({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async deleteOne(id: string): Promise<void> {
+    await this.shipTypesRepository.softDelete({ id });
+    return;
+  }
 }

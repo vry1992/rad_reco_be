@@ -1,4 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Ship } from './ship.entity';
 
 @Entity({ name: 'ship_types' })
@@ -14,4 +22,13 @@ export class ShipTypes {
 
   @OneToMany(() => Ship, (ship) => ship.type, { cascade: true })
   ships: Ship[];
+
+  @DeleteDateColumn()
+  public deletedAt?: Date;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  public createdAt!: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  public updatedAt!: Date;
 }
